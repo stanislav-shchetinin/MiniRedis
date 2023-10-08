@@ -8,7 +8,7 @@
 # Object files
 *.o
 *.ko
-*.obj
+*.ob
 *.elf
 
 # Linker output
