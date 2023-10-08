@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/windows,clion,c,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,clion,c,cmake
 
+server
+client
+
 ### C ###
 # Prerequisites
 *.d
@@ -145,5 +148,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
-# End of https://www.toptal.com/developers/gitignore/api/windows,clion,c,cmake
