@@ -8,4 +8,6 @@ include_directories(../../include)
 
 add_executable(Server src/main.c
         src/request.c
-        ../general/network.c)
+        ../general/network.c
+        ../../include/nonblock.h
+        ../general/nonblock.c)
