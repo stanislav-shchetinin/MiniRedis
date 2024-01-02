@@ -1,8 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/windows,clion,c,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,clion,c,cmake
-
-server
-client
+build
 
 ### C ###
 # Prerequisites

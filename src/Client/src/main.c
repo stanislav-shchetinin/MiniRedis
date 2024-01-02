@@ -1,14 +1,14 @@
 //
 // Created by stass on 08.10.2023.
 //
-
 #include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include "query.h"
 
-int socket_initialization(int domain, int type, int protocol){
+static int socket_initialization(int domain, int type, int protocol){
     int result = socket(domain, type, protocol);
     if (result == -1){
         perror("Invalid socket");
@@ -17,7 +17,7 @@ int socket_initialization(int domain, int type, int protocol){
     return result;
 }
 
-void connect_initialization(int client_fd, const struct sockaddr *address, socklen_t address_len){
+static void connect_initialization(int client_fd, const struct sockaddr *address, socklen_t address_len){
     int result = connect(client_fd, address, address_len);
     if (result == -1){
         perror("Connect failed");
@@ -33,21 +33,22 @@ int main(){
     address.sin_port = htons(2343);
     connect_initialization(client_fd, (struct sockaddr *) &address, sizeof(address));
 
-    write(client_fd, "Hello\n", 6);
-
-    char buf[256];
-    ssize_t nread = read(client_fd, buf, 256);
-
-    if (nread == -1){
-        perror("Read failed");
-        exit(EXIT_FAILURE);
+    int32_t err = query(client_fd, "hello1");
+    if (err) {
+        goto L_DONE;
     }
-    if (nread == 0){
-        printf("End of file occurred\n");
+    err = query(client_fd, "hello2");
+    if (err) {
+        goto L_DONE;
+    }
+    err = query(client_fd, "hello3");
+    if (err) {
+        goto L_DONE;
     }
 
-    write(STDOUT_FILENO, buf, nread);
+    return 0;
+
+    L_DONE:
     close(client_fd);
-
     return 0;
 }

@@ -7,10 +7,11 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <stdbool.h>
+#include "request.h"
 
-#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "ws2_32.general")
 
-int socket_initialization(int domain, int type, int protocol){
+static int socket_initialization(int domain, int type, int protocol){
     int result = socket(domain, type, protocol);
     if (result == -1){
         perror("Invalid socket");
@@ -19,7 +20,7 @@ int socket_initialization(int domain, int type, int protocol){
     return result;
 }
 
-void bind_initialization(int socket, const struct sockaddr *address, socklen_t address_len){
+static void bind_initialization(int socket, const struct sockaddr *address, socklen_t address_len){
     int result = bind(socket, address, address_len);
     if (result == -1){
         perror("Bind failed");
@@ -27,7 +28,7 @@ void bind_initialization(int socket, const struct sockaddr *address, socklen_t a
     }
 }
 
-void listen_initialization(int socket, int backlog){
+static void listen_initialization(int socket, int backlog){
     int result = listen(socket, backlog);
     if (result == -1){
         perror("Listen failed");
@@ -35,7 +36,7 @@ void listen_initialization(int socket, int backlog){
     }
 }
 
-int accept_initialization(int socket, struct sockaddr *address, socklen_t *address_len){
+static int accept_initialization(int socket, struct sockaddr *address, socklen_t *address_len){
     int result = accept(socket, address, address_len);
     if (result == -1){
         perror("Invalid socket");
@@ -57,17 +58,13 @@ int main(){
 
         socklen_t address_len = sizeof(address);
         int client_fd = accept_initialization(server_fd, (struct sockaddr *)&address, &address_len);
-        char buf[256];
-        ssize_t nread = read(client_fd, buf, 256);
-        if (nread == -1){
-            perror("Read failed");
-            exit(EXIT_FAILURE);
+
+        while (true){
+            int32_t err = request(client_fd);
+            if (err){
+                break;
+            }
         }
-        if (nread == 0){
-            printf("End of file occurred\n");
-        }
-        write(STDOUT_FILENO, buf, nread);
-        write(client_fd, buf, nread);
 
         close(client_fd);
     }
