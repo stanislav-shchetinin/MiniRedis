@@ -5,45 +5,25 @@
 #include "network.h"
 
 int32_t request(int connfd){
-    //+1 for '\0'
     char rbuf[HEADER_SIZE + MAX_MSG + 1];
-    errno = 0;
 
-    int32_t err = read_full(connfd, rbuf, HEADER_SIZE);
+    int32_t err = read_msg(connfd, rbuf);
 
-    if (err){
-        if (errno == 0){
-            printf("EOF\n");
-        } else {
-            perror("read() error");
-        }
+    if (err == -1){
+        perror("Read message error");
         return err;
     }
+    if (err == EOF_CODE) return -1;
 
-    uint32_t len = 0;
-    memcpy(&len, rbuf, HEADER_SIZE);
-
-    if (len > MAX_MSG){
-        fprintf(stderr, "Too long");
-        return -1;
-    }
-
-    err = read_full(connfd, &rbuf[HEADER_SIZE], len);
-
-    if (err){
-        perror("read() error");
-    }
-
-    rbuf[4 + len] = '\0';
     printf("Client says: %s\n", &rbuf[HEADER_SIZE]);
 
     const char reply[] = "world";
-    char wbuf[HEADER_SIZE + sizeof(reply)];
-    len = (uint32_t) strlen(reply);
+    err = send_msg(connfd, reply);
 
-    memcpy(wbuf, &len, HEADER_SIZE);
-    memcpy(&wbuf[4], reply, len);
+    if (err) {
+        perror("Send message error");
+        return err;
+    }
 
-    return write_all(connfd, wbuf, HEADER_SIZE + len);
-
+    return 0;
 }

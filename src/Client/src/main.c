@@ -46,8 +46,6 @@ int main(){
         goto L_DONE;
     }
 
-    return 0;
-
     L_DONE:
     close(client_fd);
     return 0;
