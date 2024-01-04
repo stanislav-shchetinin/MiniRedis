@@ -17,8 +17,7 @@ int32_t request(int connfd){
 
     printf("Client says: %s\n", &rbuf[HEADER_SIZE]);
 
-    const char reply[] = "world";
-    err = send_msg(connfd, reply);
+    err = send_msg(connfd, &rbuf[HEADER_SIZE]);
 
     if (err) {
         perror("Send message error");

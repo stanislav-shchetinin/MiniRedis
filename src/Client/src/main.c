@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <netinet/in.h>
-#include <unistd.h>
+#include <stdbool.h>
 #include "query.h"
+#include "network.h"
 
 static int socket_initialization(int domain, int type, int protocol){
     int result = socket(domain, type, protocol);
@@ -33,20 +34,13 @@ int main(){
     address.sin_port = htons(2343);
     connect_initialization(client_fd, (struct sockaddr *) &address, sizeof(address));
 
-    int32_t err = query(client_fd, "hello1");
-    if (err) {
-        goto L_DONE;
-    }
-    err = query(client_fd, "hello2");
-    if (err) {
-        goto L_DONE;
-    }
-    err = query(client_fd, "hello3");
-    if (err) {
-        goto L_DONE;
+    while (true){
+        char text[MAX_MSG] = {0};
+        scanf("%s", text);
+        printf("Text: %s\n", text);
+        int32_t err = query(client_fd, text);
+        if (err) break;
     }
 
-    L_DONE:
-    close(client_fd);
     return 0;
 }
