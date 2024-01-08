@@ -17,15 +17,15 @@
     return 0;
 
 
-int32_t read_full(int fd, char* buf, size_t n) {
+int32_t read_full(int fd, uint8_t* buf, size_t n) {
     IO_ALL(read, fd, buf, n);
 }
 
-int32_t write_all(int fd, char* buf, size_t n) {
+int32_t write_all(int fd, uint8_t* buf, size_t n) {
     IO_ALL(write, fd, buf, n);
 }
 
-int32_t send_msg(int fd, const char* text){
+int32_t send_msg(int fd, const uint8_t* text){
     uint32_t len = (uint32_t)strlen(text);
     if (len > MAX_MSG) {
         fprintf(stderr, "Too long\n");
@@ -39,7 +39,7 @@ int32_t send_msg(int fd, const char* text){
     return write_all(fd, wbuf, HEADER_SIZE + len);
 }
 
-int32_t read_msg(int fd, char* rbuf) {
+int32_t read_msg(int fd, uint8_t* rbuf) {
     //+1 for '\0'
     errno = 0;
 

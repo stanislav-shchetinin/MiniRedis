@@ -8,4 +8,6 @@ include_directories(../../include)
 
 add_executable(Client src/main.c
         src/query.c
-        ../general/network.c)
+        ../general/network.c
+        include/clientnet.h
+        src/clientnet.c)

@@ -15,10 +15,11 @@
 #define MAX_MSG 4096
 #define HEADER_SIZE 4
 #define EOF_CODE 2
+#define PORT 2343
 
-int32_t read_full(int fd, char* buf, size_t n);
-int32_t write_all(int fd, char* buf, size_t n);
-int32_t send_msg(int fd, const char* text);
-int32_t read_msg(int fd, char* rbuf);
+int32_t read_full(int fd, uint8_t* buf, size_t n);
+int32_t write_all(int fd, uint8_t* buf, size_t n);
+int32_t send_msg(int fd, const uint8_t* text);
+int32_t read_msg(int fd, uint8_t* rbuf);
 
 #endif //MINIREDIS_NETWORK_H

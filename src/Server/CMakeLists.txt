@@ -7,7 +7,10 @@ include_directories(include)
 include_directories(../../include)
 
 add_executable(Server src/main.c
-        src/request.c
         ../general/network.c
-        ../../include/nonblock.h
-        ../general/nonblock.c)
+        include/nonblock.h
+        src/nonblock.c
+        include/request.h
+        src/request.c
+        include/servernet.h
+        src/servernet.c)
