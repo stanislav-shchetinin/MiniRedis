@@ -19,7 +19,8 @@ int main(){
 
     while (true){
         char text[MAX_MSG] = {0};
-        scanf("%s", text);
+        fgets(text, MAX_MSG - 1, stdin);
+        text[strcspn(text, "\n")] = 0;
         printf("Text: %s\n", text);
         int32_t err = query(client_fd, text);
         if (err) break;
