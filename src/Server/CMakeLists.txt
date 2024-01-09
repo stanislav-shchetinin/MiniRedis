@@ -13,4 +13,5 @@ add_executable(Server src/main.c
         include/request.h
         src/request.c
         include/servernet.h
-        src/servernet.c)
+        src/servernet.c
+        include/hashtable.h)
