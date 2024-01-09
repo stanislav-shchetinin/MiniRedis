@@ -19,10 +19,14 @@ struct command {
     char* value;
 };
 
-static void do_set(struct command* cmd){
-    printf("Set. Key: %s, Value: %s\n", cmd->key, cmd->value);
-    fflush(stdout);
+void out_string(uint8_t* out, char* msg){
+    uint32_t n = (uint32_t)strlen(msg);
+    assert(n < MAX_MSG);
+    memcpy(out, &n, HEADER_SIZE);
+    strcpy(&out[HEADER_SIZE], msg);
+}
 
+static void do_set(struct command* cmd, uint8_t* out){
     struct Entry key;
     key.key = cmd->key;
     key.node.hcode = str_hash((uint8_t*)key.key, strlen(key.key));
@@ -35,6 +39,7 @@ static void do_set(struct command* cmd){
 
         if (!ent){
             perror("malloc");
+            out_string(out, "malloc error\n");
             return;
         }
 
@@ -43,9 +48,10 @@ static void do_set(struct command* cmd){
         ent->val = cmd->value;
         hm_insert(&g_data.db, &ent->node);
     }
+    out_string(out, "OK\n");
 }
 
-static void do_get(struct command* cmd){
+static void do_get(struct command* cmd, uint8_t* out){
     printf("Get. Key: %s\n", cmd->key);
     fflush(stdout);
     struct Entry key;
@@ -53,18 +59,14 @@ static void do_get(struct command* cmd){
     key.node.hcode = str_hash((uint8_t*)key.key, strlen(key.key));
     struct HNode *node = hm_lookup(&g_data.db, &key.node, &entry_eq);
     if (!node) {
-        printf("Not found\n");
-        fflush(stdout);
+        out_string(out, "Not found\n");
         return;
     }
     char* val = container_of(node, struct Entry, node)->val;
-    printf("Val: %s\n", val);
+    out_string(out, val);
 }
 
-static void do_del(struct command* cmd){
-    printf("Del. Key: %s\n", cmd->key);
-    fflush(stdout);
-
+static void do_del(struct command* cmd, uint8_t* out){
     struct Entry key;
     key.key = cmd->key;
     key.node.hcode = str_hash((uint8_t*)key.key, strlen(key.key));
@@ -73,15 +75,7 @@ static void do_del(struct command* cmd){
     if (node) {
         free(container_of(node, struct Entry, node));
     }
-
-}
-
-void out_string(char* out, char* msg){
-    uint32_t n = (uint32_t)strlen(msg);
-    assert(n < MAX_MSG);
-    memcpy(out, &n, HEADER_SIZE);
-    strcpy(&out[HEADER_SIZE], msg);
-    //out[HEADER_SIZE + n + 1] = '\0';
+    out_string(out, "OK\n");
 }
 
 static uint8_t* do_cmd(struct command* cmd){
@@ -89,30 +83,26 @@ static uint8_t* do_cmd(struct command* cmd){
     if (strcmp(cmd->name, "set") == 0){
         if (cmd->key == NULL || cmd->value == NULL){
             out_string(out, "Invalid format: set <key> <value>\n");
-            fprintf(stderr, "Invalid format: set <key> <value>\n");
         } else {
-            do_set(cmd);
+            do_set(cmd, out);
         }
 
     } else if (strcmp(cmd->name, "get") == 0){
         if (cmd->key == NULL || cmd->value != NULL){
             out_string(out, "Invalid format: get <key>\n");
-            fprintf(stderr, "Invalid format: get <key>\n");
         } else {
-            do_get(cmd);
+            do_get(cmd, out);
         }
 
     } else if (strcmp(cmd->name, "del") == 0){
         if (cmd->key == NULL || cmd->value != NULL){
             out_string(out, "Invalid format: del <key> <value>\n");
-            fprintf(stderr, "Invalid format: del <key> <value>\n");
         } else {
-            do_del(cmd);
+            do_del(cmd, out);
         }
 
     } else {
         out_string(out, "Invalid command\n");
-        fprintf(stderr, "Invalid command\n");
     }
     return out;
 }

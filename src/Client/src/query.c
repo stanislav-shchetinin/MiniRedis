@@ -21,6 +21,6 @@ int32_t query(int fd, const char *text) {
         return err;
     }
 
-    printf("Server says: %s\n", &rbuf[HEADER_SIZE]);
+    printf("%s\n", &rbuf[HEADER_SIZE]);
     return 0;
 }

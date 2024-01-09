@@ -69,6 +69,6 @@ int32_t read_msg(int fd, uint8_t* rbuf) {
         perror("read() error");
     }
 
-    rbuf[4 + len] = '\0';
+    rbuf[HEADER_SIZE + len] = '\0';
     return 0;
 }
