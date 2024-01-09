@@ -37,8 +37,10 @@ struct Conn* new_conn(int fd){
 void epollin_part(struct Conn* conn){
     uint8_t* text = read_text(conn);
     if (!text) return;
-    do_request(text);
-    fill_buf(conn);
+    uint8_t* out = do_request(text);
+    size_t len = fill_buf(conn->wbuf, out);
+    conn->wbuf_size = len;
+    free(out);
 }
 
 void epollout_part(struct Conn* conn){
@@ -80,9 +82,14 @@ uint8_t* read_text(struct Conn* conn){
     return conn->rbuf;
 }
 
-void fill_buf(struct Conn* conn){
-    size_t len = conn->rbuf_size;
-    memcpy(conn->wbuf, &len, HEADER_SIZE);
-    memcpy(&conn->wbuf[HEADER_SIZE], conn->rbuf, len);
-    conn->wbuf_size = HEADER_SIZE + len;
+int buf_size(uint8_t* buf){
+    int len;
+    memcpy(&len, buf, HEADER_SIZE);
+    return len;
+}
+
+size_t fill_buf(uint8_t* dist, uint8_t* src){
+    size_t len = buf_size(src) + HEADER_SIZE;
+    memcpy(dist, src, len);
+    return len;
 }

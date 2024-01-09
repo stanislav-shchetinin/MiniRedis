@@ -4,8 +4,8 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdbool.h>
+#include "network.h"
 #include "request.h"
-#include "hashtable.h"
 #include "hashmap.h"
 #include "util.h"
 
@@ -76,33 +76,45 @@ static void do_del(struct command* cmd){
 
 }
 
-static bool do_cmd(struct command* cmd){
+void out_string(char* out, char* msg){
+    uint32_t n = (uint32_t)strlen(msg);
+    assert(n < MAX_MSG);
+    memcpy(out, &n, HEADER_SIZE);
+    strcpy(&out[HEADER_SIZE], msg);
+    //out[HEADER_SIZE + n + 1] = '\0';
+}
+
+static uint8_t* do_cmd(struct command* cmd){
+    uint8_t* out = malloc(MAX_MSG + HEADER_SIZE + 1);
     if (strcmp(cmd->name, "set") == 0){
         if (cmd->key == NULL || cmd->value == NULL){
+            out_string(out, "Invalid format: set <key> <value>\n");
             fprintf(stderr, "Invalid format: set <key> <value>\n");
-            return false;
+        } else {
+            do_set(cmd);
         }
-        do_set(cmd);
 
     } else if (strcmp(cmd->name, "get") == 0){
         if (cmd->key == NULL || cmd->value != NULL){
+            out_string(out, "Invalid format: get <key>\n");
             fprintf(stderr, "Invalid format: get <key>\n");
-            return false;
+        } else {
+            do_get(cmd);
         }
-        do_get(cmd);
 
     } else if (strcmp(cmd->name, "del") == 0){
         if (cmd->key == NULL || cmd->value != NULL){
+            out_string(out, "Invalid format: del <key> <value>\n");
             fprintf(stderr, "Invalid format: del <key> <value>\n");
-            return false;
+        } else {
+            do_del(cmd);
         }
-        do_del(cmd);
 
     } else {
+        out_string(out, "Invalid command\n");
         fprintf(stderr, "Invalid command\n");
-        return false;
     }
-    return true;
+    return out;
 }
 
 static struct command* parse(uint8_t *text){
@@ -125,8 +137,9 @@ static struct command* parse(uint8_t *text){
     return cmd;
 }
 
-void do_request(uint8_t *text) {
+uint8_t* do_request(uint8_t *text) {
     struct command* cmd = parse(text);
-    do_cmd(cmd);
+    uint8_t* out = do_cmd(cmd);
     free(cmd);
+    return out;
 }

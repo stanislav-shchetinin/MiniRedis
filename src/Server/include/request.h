@@ -7,6 +7,6 @@
 
 #include "stdint.h"
 
-void do_request(uint8_t *text);
+uint8_t* do_request(uint8_t *text);
 
 #endif //MINIREDIS_REQUEST_H

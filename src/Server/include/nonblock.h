@@ -35,6 +35,6 @@ void epollout_part(struct Conn* conn);
 void add_new_fd(int epollfd, int fd, struct Conn** fd2conn);
 bool epoll_wait_wrapper(int epollfd, struct epoll_event *evt);
 uint8_t* read_text(struct Conn* conn);
-void fill_buf(struct Conn* conn);
+size_t fill_buf(uint8_t* dist, uint8_t* src);
 
 #endif //MINIREDIS_NONBLOCK_H
