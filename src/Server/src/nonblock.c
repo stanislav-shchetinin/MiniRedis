@@ -1,7 +1,3 @@
-//
-// Created by stass on 02.01.2024.
-//
-
 #include "nonblock.h"
 
 void fd_set_nb(int fd) {

@@ -1,7 +1,3 @@
-//
-// Created by stass on 09.01.2024.
-//
-
 #include "util.h"
 
 #define ST_VAL 0x811C9DC5

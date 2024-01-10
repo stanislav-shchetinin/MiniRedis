@@ -1,7 +1,3 @@
-//
-// Created by stass on 08.01.2024.
-//
-
 #ifndef MINIREDIS_SERVERNET_H
 #define MINIREDIS_SERVERNET_H
 

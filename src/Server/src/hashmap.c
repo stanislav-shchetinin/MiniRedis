@@ -1,7 +1,3 @@
-//
-// Created by stass on 09.01.2024.
-//
-
 #include "hashmap.h"
 
 void hm_help_resizing(struct HMap *hmap) {

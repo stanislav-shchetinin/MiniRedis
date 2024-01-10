@@ -1,7 +1,3 @@
-//
-// Created by stass on 09.01.2024.
-//
-
 #include "hashtable.h"
 
 void h_init(struct HTab *htab, size_t n) {

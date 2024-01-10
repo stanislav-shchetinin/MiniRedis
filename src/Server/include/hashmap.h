@@ -1,7 +1,3 @@
-//
-// Created by stass on 09.01.2024.
-//
-
 #ifndef MINIREDIS_HASHMAP_H
 #define MINIREDIS_HASHMAP_H
 

@@ -1,6 +1,3 @@
-//
-// Created by stass on 08.01.2024.
-//
 #include <malloc.h>
 #include <string.h>
 #include <stdbool.h>
@@ -52,8 +49,6 @@ static void do_set(struct command* cmd, uint8_t* out){
 }
 
 static void do_get(struct command* cmd, uint8_t* out){
-    printf("Get. Key: %s\n", cmd->key);
-    fflush(stdout);
     struct Entry key;
     key.key = cmd->key;
     key.node.hcode = str_hash((uint8_t*)key.key, strlen(key.key));
@@ -74,8 +69,35 @@ static void do_del(struct command* cmd, uint8_t* out){
     struct HNode *node = hm_pop(&g_data.db, &key.node, &entry_eq);
     if (node) {
         free(container_of(node, struct Entry, node));
+        out_string(out, "1\n");
+        return;
     }
-    out_string(out, "OK\n");
+    out_string(out, "0\n");
+}
+
+static void h_scan(struct HTab *tab, uint8_t* out) {
+    if (tab->size == 0) {
+        return;
+    }
+    char msg[MAX_MSG + 1];
+    size_t pos = 0;
+    for (size_t i = 0; i < tab->mask + 1; ++i) {
+        struct HNode *node = tab->tab[i];
+        while (node) {
+            char* key = container_of(node, struct Entry, node)->key;
+            size_t len = strlen(key);
+            strcpy(&msg[pos], key);
+            strcpy(&msg[pos + len + 1], "\n");
+            pos += len + 2;
+            node = node->next;
+        }
+    }
+    out_string(out, msg);
+}
+
+static void do_keys(uint8_t* out){
+    h_scan(&g_data.db.ht1, out);
+    h_scan(&g_data.db.ht2, out);
 }
 
 static uint8_t* do_cmd(struct command* cmd){
@@ -101,6 +123,8 @@ static uint8_t* do_cmd(struct command* cmd){
             do_del(cmd, out);
         }
 
+    } else if (strcmp(cmd->name, "keys") == 0) {
+        do_keys(out);
     } else {
         out_string(out, "Invalid command\n");
     }
