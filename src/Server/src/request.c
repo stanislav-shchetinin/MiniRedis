@@ -87,7 +87,7 @@ static void h_scan(struct HTab *tab, uint8_t* out) {
     if (tab->size == 0) {
         return;
     }
-    char msg[MAX_MSG + 1];
+    char msg[(tab->mask + 1) * MAX_MSG + 1];
     size_t pos = 0;
     for (size_t i = 0; i < tab->mask + 1; ++i) {
         struct HNode *node = tab->tab[i];
@@ -95,8 +95,8 @@ static void h_scan(struct HTab *tab, uint8_t* out) {
             char* key = container_of(node, struct Entry, node)->key;
             size_t len = strlen(key);
             strcpy(&msg[pos], key);
-            strcpy(&msg[pos + len + 1], "\n");
-            pos += len + 2;
+            strcpy(&msg[pos + len], "\n");
+            pos += len + 1;
             node = node->next;
         }
     }
