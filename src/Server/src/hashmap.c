@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hashmap.h"
 
 void hm_help_resizing(struct HMap *hmap) {
@@ -73,8 +74,9 @@ struct HNode *hm_pop(
     return NULL;
 }
 
+
 bool entry_eq(struct HNode *lhs, struct HNode *rhs) {
     struct Entry *le = container_of(lhs, struct Entry, node);
     struct Entry *re = container_of(rhs, struct Entry, node);
-    return lhs->hcode == rhs->hcode && le->key == re->key;
+    return lhs->hcode == rhs->hcode && strcmp(le->key, re->key) == 0;
 }
