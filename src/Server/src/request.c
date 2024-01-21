@@ -32,7 +32,6 @@ void out_string(uint8_t* out, char* msg){
 static void do_set(struct command* cmd, uint8_t* out){
     struct Entry key;
     SWAP(char*, key.key, cmd->key);
-    //strcpy(key.key, cmd->key);
     key.node.next = NULL;
     key.node.hcode = str_hash((uint8_t*)key.key, strlen(key.key));
 
@@ -45,7 +44,6 @@ static void do_set(struct command* cmd, uint8_t* out){
 
         SWAP(char*, ent->key, key.key);
         ent->node.hcode = key.node.hcode;
-        //strcpy(ent.val, cmd->value);
         SWAP(char*, ent->val, cmd->value);
         hm_insert(&g_data.db, &ent->node);
     }
@@ -55,7 +53,6 @@ static void do_set(struct command* cmd, uint8_t* out){
 
 static void do_get(struct command* cmd, uint8_t* out){
     struct Entry key;
-    //strcpy(key.key, cmd->key);
     SWAP(char*, key.key, cmd->key);
     key.node.next = NULL;
     key.node.hcode = str_hash((uint8_t*)key.key, strlen(key.key));
@@ -70,7 +67,6 @@ static void do_get(struct command* cmd, uint8_t* out){
 
 static void do_del(struct command* cmd, uint8_t* out){
     struct Entry key;
-    //strcpy(key.key, cmd->key);
     SWAP(char*, key.key, cmd->key);
     key.node.hcode = str_hash((uint8_t*)key.key, strlen(key.key));
 
@@ -155,7 +151,8 @@ static struct command* parse(uint8_t *text){
     if ((token = strsep(&text, " "))){
         strcpy(cmd->key, token);
     }
-    if ((token = strsep(&text, " "))){
+    token = (char*)text;
+    if (token){
         strcpy(cmd->value, token);
     }
     return cmd;
