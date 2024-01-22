@@ -6,7 +6,7 @@
 #include "network.h"
 
 int32_t query(int fd, const char *text) {
-    int32_t err = send_msg(fd, text);
+    int32_t err = send_msg(fd, (uint8_t*)text);
 
     if (err) {
         perror("Send message error");
@@ -14,7 +14,7 @@ int32_t query(int fd, const char *text) {
     }
 
     char rbuf[HEADER_SIZE + MAX_MSG + 1];
-    err = read_msg(fd, rbuf);
+    err = read_msg(fd, (uint8_t*)rbuf);
 
     if (err == -1){
         perror("Read message error");

@@ -5,28 +5,28 @@
 #include "network.h"
 
 #define IO_ALL(type, fd, buf, n)                \
-    while (n > 0){                              \
+    while ((n) > 0){                              \
         ssize_t rv = type(fd, buf, n);          \
         if (rv <= 0) {                          \
             return -1;                          \
         }                                       \
-        assert((size_t)rv <= n);                \
-        n -= (size_t) rv;                       \
-        buf += rv;                              \
+        assert((size_t)rv <= (n));                \
+        (n) -= (size_t) rv;                       \
+        (buf) += rv;                              \
     }                                           \
     return 0;
 
 
 int32_t read_full(int fd, uint8_t* buf, size_t n) {
-    IO_ALL(read, fd, buf, n);
+    IO_ALL(read, fd, buf, n)
 }
 
 int32_t write_all(int fd, uint8_t* buf, size_t n) {
-    IO_ALL(write, fd, buf, n);
+    IO_ALL(write, fd, buf, n)
 }
 
 int32_t send_msg(int fd, const uint8_t* text){
-    uint32_t len = (uint32_t)strlen(text);
+    uint32_t len = (uint32_t)strlen((char *)text);
     if (len > MAX_MSG) {
         fprintf(stderr, "Too long\n");
         return -1;
@@ -34,9 +34,9 @@ int32_t send_msg(int fd, const uint8_t* text){
 
     char wbuf[HEADER_SIZE + len + 1];
     memcpy(wbuf, &len, HEADER_SIZE);  // assume little endian
-    strcpy(&wbuf[HEADER_SIZE], text);
+    strcpy(&wbuf[HEADER_SIZE], (char *)text);
 
-    return write_all(fd, wbuf, HEADER_SIZE + len);
+    return write_all(fd, (uint8_t *)wbuf, HEADER_SIZE + len);
 }
 
 int32_t read_msg(int fd, uint8_t* rbuf) {

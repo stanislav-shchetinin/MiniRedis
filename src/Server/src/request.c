@@ -1,10 +1,11 @@
 #include <malloc.h>
 #include <string.h>
-#include <stdbool.h>
 #include "network.h"
 #include "request.h"
 #include "hashmap.h"
 #include "util.h"
+
+#define FREE(el) if ((el) != NULL) free(el);
 
 static struct {
     struct HMap db;
@@ -20,13 +21,13 @@ void out_string(uint8_t* out, char* msg){
     uint32_t n = (uint32_t)strlen(msg);
     assert(n < MAX_MSG);
     memcpy(out, &n, HEADER_SIZE);
-    strcpy(&out[HEADER_SIZE], msg);
+    strcpy((char *)&out[HEADER_SIZE], msg);
 }
 
 #define SWAP(type, a, b) do { \
     type temp = a; \
-    a = b; \
-    b = temp; \
+    (a) = (b); \
+    (b) = temp; \
 } while (0)
 
 static void do_set(struct command* cmd, uint8_t* out){
@@ -145,10 +146,10 @@ static struct command* parse(uint8_t *text){
     cmd->value = calloc(sizeof(char), HEADER_SIZE + MAX_MSG);
     cmd->key = calloc(sizeof(char), HEADER_SIZE + MAX_MSG);
     char* token = NULL;
-    if ((token = strsep(&text, " "))){
+    if ((token = strsep((char **)&text, " "))){
         strcpy(cmd->name, token);
     }
-    if ((token = strsep(&text, " "))){
+    if ((token = strsep((char **)&text, " "))){
         strcpy(cmd->key, token);
     }
     token = (char*)text;
@@ -161,6 +162,6 @@ static struct command* parse(uint8_t *text){
 uint8_t* do_request(uint8_t *text) {
     struct command* cmd = parse(text);
     uint8_t* out = do_cmd(cmd);
-    free(cmd);
+    FREE(cmd)
     return out;
 }
