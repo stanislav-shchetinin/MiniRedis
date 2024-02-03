@@ -38,7 +38,6 @@ static void do_set(struct command* cmd, uint8_t* out){
 
     struct HNode *node = hm_lookup(&g_data.db, &key.node, &entry_eq);
     if (node) {
-        //strcpy(container_of(node, struct Entry, node)->val, cmd->value);
         SWAP(char*, container_of(node, struct Entry, node)->val, cmd->value);
     } else {
         struct Entry* ent = calloc(sizeof(struct Entry), 1);
@@ -49,7 +48,7 @@ static void do_set(struct command* cmd, uint8_t* out){
         hm_insert(&g_data.db, &ent->node);
     }
 
-    out_string(out, "1\n");
+    out_string(out, "OK");
 }
 
 static void do_get(struct command* cmd, uint8_t* out){
@@ -59,7 +58,7 @@ static void do_get(struct command* cmd, uint8_t* out){
     key.node.hcode = str_hash((uint8_t*)key.key, strlen(key.key));
     struct HNode *node = hm_lookup(&g_data.db, &key.node, &entry_eq);
     if (!node) {
-        out_string(out, "(err) Not found\n");
+        out_string(out, "(err) Not found");
         return;
     }
     char* val = container_of(node, struct Entry, node)->val;
@@ -74,10 +73,10 @@ static void do_del(struct command* cmd, uint8_t* out){
     struct HNode *node = hm_pop(&g_data.db, &key.node, &entry_eq);
     if (node) {
         free(container_of(node, struct Entry, node));
-        out_string(out, "1\n");
+        out_string(out, "1");
         return;
     }
-    out_string(out, "0\n");
+    out_string(out, "0");
 }
 
 static void h_scan(struct HTab *tab, uint8_t* out) {
@@ -97,6 +96,8 @@ static void h_scan(struct HTab *tab, uint8_t* out) {
             node = node->next;
         }
     }
+    if (pos != 0)
+        msg[pos - 1] = '\0'; //remove last \n
     out_string(out, msg);
 }
 
@@ -109,21 +110,21 @@ static uint8_t* do_cmd(struct command* cmd){
     uint8_t* out = malloc(MAX_MSG + HEADER_SIZE + 1);
     if (strcmp(cmd->name, "set") == 0){
         if (*cmd->key == 0 || *cmd->value == 0){
-            out_string(out, "(err) Invalid format: set <key> <value>\n");
+            out_string(out, "(err) Invalid format: set <key> <value>");
         } else {
             do_set(cmd, out);
         }
 
     } else if (strcmp(cmd->name, "get") == 0){
         if (*cmd->key == 0 || *cmd->value != 0){
-            out_string(out, "(err) Invalid format: get <key>\n");
+            out_string(out, "(err) Invalid format: get <key>");
         } else {
             do_get(cmd, out);
         }
 
     } else if (strcmp(cmd->name, "del") == 0){
         if (*cmd->key == 0 || *cmd->value != 0){
-            out_string(out, "(err) Invalid format: del <key> <value>\n");
+            out_string(out, "(err) Invalid format: del <key> <value>");
         } else {
             do_del(cmd, out);
         }
@@ -131,7 +132,7 @@ static uint8_t* do_cmd(struct command* cmd){
     } else if (strcmp(cmd->name, "keys") == 0) {
         do_keys(out);
     } else {
-        out_string(out, "(err) Invalid command\n");
+        out_string(out, "(err) Invalid command");
     }
     return out;
 }

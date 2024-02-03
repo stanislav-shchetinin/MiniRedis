@@ -19,8 +19,10 @@ int main(){
 
     while (true){
         char text[MAX_MSG] = {0};
+        printf(":%d> ", PORT);
         fgets(text, MAX_MSG - 1, stdin);
         text[strcspn(text, "\n")] = 0;
+        if (strcmp(text, "quit") == 0) break;
         int32_t err = query(client_fd, text);
         if (err) break;
     }
